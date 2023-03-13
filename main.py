@@ -8,7 +8,7 @@ import os
 import cv2 as cv2
 import matplotlib.pyplot as plt
 import numpy as np
-import scipy as scp
+import scipy.ndimage as nd
 
 class CGP_interface():
     def __init__(self, correct, noisy, error_function):
@@ -26,12 +26,14 @@ class CGP_interface():
             "primitives": (cgp.Add, cgp.Sub, cgp.Mul, cgp.Div, cgp.ConstantFloat),
             }
         self.ea_params = {"n_offsprings": 10, "mutation_rate": 0.03, "tournament_size": 2, "n_processes": 2}
-        self.evolve_params = {"max_generations": 1000, "min_fitness": 0.0}
+        self.evolve_params = {"max_generations": 3}
         
 
 
     def objective(self, individual):
-        return self._error_function(self._correct, apply_image_filter(individual, self._noisy))
+        print("pocitam")
+        individual.fitness = -self._error_function(self._correct, nd.generic_filter(self._noisy, individual.to_func(), (9)))
+        return individual
         
 
 def apply_image_filter(kernel, image):
@@ -78,8 +80,8 @@ if __name__ == "__main__":
     if img1 is None:
         print("Ilegální obrázek")
         exit(1)
-    interface = CGP_interface(img1, img2, MAE)
-    print(interface.objective(np.array([[0.01,0.024,0.01],[0.024,0.9,0.024],[0.01,0.024,0.01]])))
+    interface = CGP_interface(img1, img2, MSE)
+    # print(interface.objective(np.array([[0.01,0.024,0.01],[0.024,0.9,0.024],[0.01,0.024,0.01]])))
     
     pop = cgp.Population(**interface.population_params, genome_params=interface.genome_params)
     ea = cgp.ea.MuPlusLambda(**interface.ea_params)
