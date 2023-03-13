@@ -35,7 +35,7 @@ class CGP_interface():
         
 
 def apply_image_filter(kernel, image):
-    new_image = scp.ndimage.generic_filter(src=image, kernel=kernel, ddepth=-1)
+    new_image = cv2.filter2D(image,kernel=kernel, ddepth=-1)
     return new_image
 
 def MAE(img1, img2):
