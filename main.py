@@ -41,7 +41,7 @@ class CGP_interface():
             "primitives": (cgp.Add, cgp.Sub, cgp.Mul, cgp.ConstantFloat, cgp.IfElse, DivProtected, constantFull, constantZero),
             }
         self.ea_params = {"n_offsprings": 10, "mutation_rate": 0.2, "tournament_size": 2, "n_processes": 4}
-        self.evolve_params = {"max_generations": 10}
+        self.evolve_params = {"max_generations": 1000}
     
     
 
@@ -74,9 +74,9 @@ def MAE(img1, img2):
 
 def MSE(img1, img2):
     height, width = img1.shape
-    diff = np.sum(cv2.subtract(img2, img1) ** 2)
-    print(cv2.subtract(img2, img1))
-    scaled = (height*width*255) - diff
+    # diff = np.sum(cv2.subtract(img2, img1) ** 2)
+    diff = np.sum(np.asarray(img1) - np.asarray(img2))
+    scaled = ((height*width*255) - diff) / 255
     return scaled
 
 def load_image(path_correct : str, path_noisy : str):
