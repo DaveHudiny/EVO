@@ -68,15 +68,16 @@ def apply_image_filter(kernel, image):
 
 def MAE(img1, img2):
     height, width = img1.shape
-    diff = np.sum(cv2.subtract(img1, img2))
+    diff = np.sum(np.abs(cv2.subtract(img1, img2)))
     scaled = diff/(height*width)
     return -scaled
 
 def MSE(img1, img2):
     height, width = img1.shape
-    diff = np.sum(cv2.subtract(img1, img2) ** 2)
-    scaled = diff/(height*width)
-    return -scaled
+    diff = np.sum(cv2.subtract(img2, img1) ** 2)
+    print(cv2.subtract(img2, img1))
+    scaled = (height*width*255) - diff
+    return scaled
 
 def load_image(path_correct : str, path_noisy : str):
     if os.path.exists(path_correct) and os.path.exists(path_noisy):
