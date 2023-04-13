@@ -1,0 +1,13 @@
+self.population_params = {"n_parents": 1, "seed": seed}
+        self.genome_params = {
+            "n_inputs": 25,
+            "n_outputs": 2,
+            "n_columns": 10,
+            "n_rows": 10,
+            "levels_back": 7,
+            "primitives": (cgp.Add, cgp.Sub, cgp.Mul, cgp.ConstantFloat, cgp.IfElse, DivProtected, constantFull, constantZero),
+            }
+        self.ea_params = {"n_offsprings": 5, "mutation_rate": 0.3, "n_processes": 4}
+        self.evolve_params = {"max_generations": 300}
+
+Práh byl 0.7
