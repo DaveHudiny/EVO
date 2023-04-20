@@ -35,3 +35,12 @@ def three_outputs(func, inputor):
         return out2
     else:
         return out3
+        
+def four_outputs(func, inputor):
+    out1, out2, out3, out4 = func(*inputor)
+    if out1 > 0.3:
+        return out2
+    elif out1 > -0.3:
+        return out3
+    else:
+        return out4
