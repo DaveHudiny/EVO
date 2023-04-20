@@ -12,7 +12,7 @@ import numpy as np
 import scipy.ndimage as nd
 import pickle as pkl
 import random as random
-from strategies import two_outputs, deterministic, no_threshold, three_outputs
+from strategies import two_outputs, deterministic, no_threshold, three_outputs, four_outputs
 import argparse
 import inspect
 
@@ -70,7 +70,9 @@ class CGP_interface():
 
         global size_prod 
         size_prod = self.height * self.width
-        if strategy == three_outputs:
+        if strategy == four_outputs:
+            self.n_outputs = 4
+        elif strategy == three_outputs:
             self.n_outputs = 3
         elif strategy == two_outputs:
             self.n_outputs = 2
@@ -85,7 +87,7 @@ class CGP_interface():
             "primitives": (cgp.Add, cgp.Sub, cgp.Mul, cgp.ConstantFloat, cgp.IfElse, DivProtected, 
                            ConstantOne, ConstantZero, Maxi, Mini, Identity, AbsSub, Avg),
             }
-        self.ea_params = {"n_offsprings": 5, "mutation_rate": 0.3, "n_processes": 4}
+        self.ea_params = {"n_offsprings": 5, "mutation_rate": 0.2, "n_processes": 4}
         self.evolve_params = {"max_generations": iterations}
     
     def objective_deterministic(self, individual : cgp.IndividualSingleGenome):
@@ -159,7 +161,7 @@ def parser_init():
     parser.add_argument("--noisy_path", type=str, help="Path to noisy image.", default="./data/tshushima_small_15percent.jpg")
     parser.add_argument("--runs", type=int, help="Number of program runs.", default=15)
     parser.add_argument("--result_path", type=str, help="Path to folder for results.", default="./experimenty")
-    parser.add_argument("--strategy", help="Strategy for two outputs.", choices=["two_outputs", "deterministic", "no_threshold", "three_outputs"])
+    parser.add_argument("--strategy", help="Strategy for two outputs.", choices=["two_outputs", "deterministic", "no_threshold", "three_outputs", "four_outputs"])
     parser.add_argument("--iterations", help="Iterations (generations) for each run.", default=400, type=int)
     return parser
 
@@ -177,6 +179,9 @@ def select_strategy(args):
         elif args.strategy == "three_outputs":
             strategy = three_outputs
             strategy_name = "three_outputs"
+        elif args.strategy == "four_outputs":
+            strategy = four_outputs
+            strategy_name = "four_outputs"
     else:
         print("No strategy was selected! Two outputs strategy will be performed!")
         strategy = two_outputs
@@ -207,7 +212,10 @@ if __name__ == "__main__":
         pop = cgp.Population(**interface.population_params, genome_params=interface.genome_params)
         ea = cgp.ea.MuPlusLambda(**interface.ea_params)
         # try:
-        cgp.evolve(pop, interface.objective_two_outputs, ea, **interface.evolve_params, print_progress=True, callback=recording_callback)
+        if strategy_name == "deterministic":
+            cgp.evolve(pop, interface.objective_deterministic, ea, **interface.evolve_params, print_progress=True, callback=recording_callback)
+        else:
+            cgp.evolve(pop, interface.objective_two_outputs, ea, **interface.evolve_params, print_progress=True, callback=recording_callback)
         # except:
             # with open('ended_randomly.pkl', 'wb') as handle:
             #     pkl.dump(pop.champion, handle, protocol=pkl.HIGHEST_PROTOCOL)
