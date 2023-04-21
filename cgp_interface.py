@@ -84,7 +84,7 @@ class CGP_interface():
             "primitives": (cgp.Add, cgp.Sub, cgp.Mul, cgp.ConstantFloat, cgp.IfElse, DivProtected, 
                            ConstantOne, ConstantZero, Maxi, Mini, Identity, AbsSub, Avg),
             }
-        self.ea_params = {"n_offsprings": 5, "mutation_rate": 0.3, "n_processes": 4}
+        self.ea_params = {"n_offsprings": 5, "mutation_rate": 0.2, "n_processes": 4}
         self.evolve_params = {"max_generations": iterations}
     
     def objective_deterministic(self, individual : cgp.IndividualSingleGenome):
