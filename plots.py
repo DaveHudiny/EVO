@@ -25,7 +25,7 @@ if __name__ == "__main__":
     seeds = {}
     histories = {}
     results = {}
-    for name in ["deterministic", "two_outputs2", "two_mutations", "three_outputs_03", "four_outputs", "no_threshold"]:
+    for name in ["deterministic", "two_outputs2", "two_mutations", "three_outputs_03", "four_outputs_03", "no_threshold"]:
         histories[name], seeds[name], results[name] = load_history(f"./experimenty/{name}/histories.txt")
     
     RUNS, EVALS, MAX_FIT = 15, 400, 1
@@ -48,7 +48,8 @@ if __name__ == "__main__":
     plt.show()
         
     dfr = pd.DataFrame.from_dict(results)
-    dfr = dfr.rename(columns={"deterministic": "Deterministic", "two_outputs2" : "2 Outputs 0.3"})
+    dfr = dfr.rename(columns={"deterministic": "Deter", "two_outputs2" : "2 Outs H", "three_outputs_03" : "3 Outs H", 
+                              "four_outputs_03": "4 Outs H", "no_threshold": "No Thresh", "two_mutations": "2 Outs L"})
     ax = sns.boxplot(data=dfr)
     plt.show()
     # print(dfh)
