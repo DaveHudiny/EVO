@@ -84,7 +84,7 @@ class CGP_interface():
             "primitives": (cgp.Add, cgp.Sub, cgp.Mul, cgp.ConstantFloat, cgp.IfElse, DivProtected, 
                            ConstantOne, ConstantZero, Maxi, Mini, Identity, AbsSub, Avg),
             }
-        self.ea_params = {"n_offsprings": 5, "mutation_rate": 0.2, "n_processes": 4}
+        self.ea_params = {"n_offsprings": 5, "mutation_rate": 0.02, "n_processes": 4}
         self.evolve_params = {"max_generations": iterations}
     
     def objective_deterministic(self, individual : cgp.IndividualSingleGenome):
@@ -158,7 +158,7 @@ def parser_init():
     parser.add_argument("--noisy_path", type=str, help="Path to noisy image.", default="./data/tshushima_small_15percent.jpg")
     parser.add_argument("--runs", type=int, help="Number of program runs.", default=15)
     parser.add_argument("--result_path", type=str, help="Path to folder for results.", default="./experimenty")
-    parser.add_argument("--strategy", help="Strategy for two outputs.", choices=["two_outputs", "deterministic", "no_threshold", "three_outputs", "four_outputs", "two_mutations"])
+    parser.add_argument("--strategy", help="Strategy for two outputs.", choices=["experimental", "two_outputs", "deterministic", "no_threshold", "three_outputs", "four_outputs", "two_mutations"])
     parser.add_argument("--iterations", help="Iterations (generations) for each run.", default=400, type=int)
     return parser
 
@@ -182,6 +182,9 @@ def select_strategy(args):
         elif args.strategy == "two_mutations":
             strategy = two_outputs
             strategy_name = "two_mutations"
+        elif args.strategy == "experimental":
+            strategy = two_outputs
+            strategy_name = "experimental"
     else:
         print("No strategy was selected! Two outputs strategy will be performed!")
         strategy = two_outputs
