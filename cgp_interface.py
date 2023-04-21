@@ -55,9 +55,6 @@ class Avg(cgp.OperatorNode):
     _def_output = "(x_0 + x_1) / 2"
     _def_output_numpy = "(x_0 + x_1) / 2"
 
-
-    
-
 class CGP_interface():
     def __init__(self, correct, noisy, error_function, seed : int, strategy, iterations):
         self._correct = (correct / 255.0) - 0.5
@@ -87,7 +84,7 @@ class CGP_interface():
             "primitives": (cgp.Add, cgp.Sub, cgp.Mul, cgp.ConstantFloat, cgp.IfElse, DivProtected, 
                            ConstantOne, ConstantZero, Maxi, Mini, Identity, AbsSub, Avg),
             }
-        self.ea_params = {"n_offsprings": 5, "mutation_rate": 0.2, "n_processes": 4}
+        self.ea_params = {"n_offsprings": 5, "mutation_rate": 0.3, "n_processes": 4}
         self.evolve_params = {"max_generations": iterations}
     
     def objective_deterministic(self, individual : cgp.IndividualSingleGenome):
@@ -161,7 +158,7 @@ def parser_init():
     parser.add_argument("--noisy_path", type=str, help="Path to noisy image.", default="./data/tshushima_small_15percent.jpg")
     parser.add_argument("--runs", type=int, help="Number of program runs.", default=15)
     parser.add_argument("--result_path", type=str, help="Path to folder for results.", default="./experimenty")
-    parser.add_argument("--strategy", help="Strategy for two outputs.", choices=["two_outputs", "deterministic", "no_threshold", "three_outputs", "four_outputs"])
+    parser.add_argument("--strategy", help="Strategy for two outputs.", choices=["two_outputs", "deterministic", "no_threshold", "three_outputs", "four_outputs", "two_mutations"])
     parser.add_argument("--iterations", help="Iterations (generations) for each run.", default=400, type=int)
     return parser
 
@@ -169,7 +166,7 @@ def select_strategy(args):
     if args.strategy is not None:
         if args.strategy == "two_outputs":
             strategy = two_outputs
-            strategy_name = "two_outputs"
+            strategy_name = "two_outputs2"
         elif args.strategy == "deterministic":
             strategy = deterministic
             strategy_name = "deterministic"
@@ -182,6 +179,9 @@ def select_strategy(args):
         elif args.strategy == "four_outputs":
             strategy = four_outputs
             strategy_name = "four_outputs"
+        elif args.strategy == "two_mutations":
+            strategy = two_outputs
+            strategy_name = "two_mutations"
     else:
         print("No strategy was selected! Two outputs strategy will be performed!")
         strategy = two_outputs
