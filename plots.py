@@ -7,6 +7,7 @@
 import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 
 def load_history(path):
     seeds = []
@@ -20,25 +21,37 @@ def load_history(path):
             results.append(float(splitor[-1]))
     return histories, seeds, results
 
-
-def plot_boxplots():
-    pass
-
-def plot_konvergent_curve():
-    pass
-
 if __name__ == "__main__":
     seeds = {}
     histories = {}
     results = {}
-    for name in ["deterministic", "two_outputs2", "two_mutations", "three_outputs", "four_outputs", "no_threshold"]:
+    for name in ["deterministic", "two_outputs2", "two_mutations", "three_outputs_03", "four_outputs_03", "no_threshold"]:
         histories[name], seeds[name], results[name] = load_history(f"./experimenty/{name}/histories.txt")
     
-    dfh = pd.DataFrame(histories)
-    dfr = pd.DataFrame(results)
-    average = dfr["two_mutations"].mean()
+    RUNS, EVALS, MAX_FIT = 15, 400, 1
 
-    print(average)
-    print(dfr)
-    sns.boxplot(data=dfr)
+    deter = histories["two_mutations"]
+    mins = np.min(deter, axis=0)
+    meds = np.median(deter, axis=0)
+    maxs = np.max(deter, axis=0)
+
+    x = np.arange(1,EVALS+1)
+    # plt.xscale('log')
+    plt.plot(x,meds)
+    plt.fill_between(x,mins,maxs,alpha=0.4)
+    plt.axhline(MAX_FIT, color="black",\
+    linestyle="dashed")
+    # plt.ylim([0.8, 1])
+    plt.xlabel('Pocet evaluaci')
+    plt.ylabel('Fitness')
+    plt.title('Konvergencni krivka')
     plt.show()
+        
+    dfr = pd.DataFrame.from_dict(results)
+    dfr = dfr.rename(columns={"deterministic": "Deter", "two_outputs2" : "2 Outs H", "three_outputs_03" : "3 Outs H", 
+                              "four_outputs_03": "4 Outs H", "no_threshold": "No Thresh", "two_mutations": "2 Outs L"})
+    ax = sns.boxplot(data=dfr)
+    plt.show()
+    # print(dfh)
+    # sns.lineplot(data=dfh, hue=None)
+    # plt.show()
