@@ -8,6 +8,7 @@
 import numpy as np
 where = np.array([6, 7, 8, 11, 12, 13, 16, 17, 18])
 
+
 def two_outputs(func, inputor):
     """Implementation of two outputs strategy. It lets CGP itself to create single detection output.
        and then it uses it to select old pixel, or result of evolued filter.
@@ -24,7 +25,8 @@ def two_outputs(func, inputor):
         return new_value
     else:
         return inputor[12]
-    
+
+
 def deterministic(func, inputor):
     """Detects noises with usage of mean and standard deviation in neighborhood of single standard deviation.
        If the filter detects noise, then CGP reconstructs the pixel by its neighborhood.
@@ -36,7 +38,7 @@ def deterministic(func, inputor):
     Returns:
         float: Returns new value of repaired pixel.
     """
-    
+
     neighbourhood = inputor[where]
     mean = np.mean(neighbourhood)
     std = np.std(neighbourhood)
@@ -44,7 +46,8 @@ def deterministic(func, inputor):
         return func(*inputor)
     else:
         return inputor[12]
-    
+
+
 def no_threshold(func, inputor):
     """Simplest strategy. It lets CGP to do everything
 
@@ -56,6 +59,7 @@ def no_threshold(func, inputor):
         float: Returns new value of repaired pixel.
     """
     return func(*inputor)
+
 
 def three_outputs(func, inputor):
     """This strategy works with three outputs CGP. If first output is over 0, 
@@ -73,7 +77,8 @@ def three_outputs(func, inputor):
         return out2
     else:
         return out3
-        
+
+
 def four_outputs(func, inputor):
     """This strategy works with four outputs CGP. Similar idea to strategy above.
 

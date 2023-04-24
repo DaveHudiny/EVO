@@ -9,7 +9,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-def load_history(path : str):
+
+def load_history(path: str):
     """Reads experiments folder history file.
 
     Args:
@@ -29,7 +30,8 @@ def load_history(path : str):
             results.append(float(splitor[-1]))
     return histories, seeds, results
 
-def plt_convergent(mins, meds, maxs, color : str = "red"):
+
+def plt_convergent(mins, meds, maxs, color: str = "red"):
     """Plots convergent curve with different colors. You have to plot and save it outside
        (because of plotting multiple curves to single figure). 
 
@@ -41,15 +43,16 @@ def plt_convergent(mins, meds, maxs, color : str = "red"):
     """
     RUNS, EVALS, MAX_FIT = 15, 400, 1
     mins[mins < 0.96] = 0.96
-    x = np.arange(1,EVALS+1)
+    x = np.arange(1, EVALS+1)
     # plt.xscale('log')
     plt.plot(x, meds, color=color)
     plt.fill_between(x, mins, maxs, alpha=0.3, color=color)
-    plt.axhline(MAX_FIT, color="black",\
-    linestyle="dashed")
+    plt.axhline(MAX_FIT, color="black",
+                linestyle="dashed")
     plt.xlabel("Pocet evaluací")
     plt.ylabel("Fitness")
     plt.title("Konvergenční křivka")
+
 
 def plt_boxplots(results):
     """Plots boxplots of result fitnesses.
@@ -58,20 +61,20 @@ def plt_boxplots(results):
         results (dict): Dictionary of keys by strategy with lists with resulting fitnesses of runs.
     """
     dfr = pd.DataFrame.from_dict(results)
-    dfr = dfr.rename(columns={"deterministic": "Deter", "two_outputs" : "2 Outs H", "three_outputs_03" : "3 Outs H", 
+    dfr = dfr.rename(columns={"deterministic": "Deter", "two_outputs": "2 Outs H", "three_outputs_03": "3 Outs H",
                               "four_outputs_03": "4 Outs H", "no_threshold": "No Thresh", "two_mutations": "2 Outs L"})
     ax = sns.boxplot(data=dfr)
     plt.savefig("boxplots.pdf")
     plt.show()
+
 
 if __name__ == "__main__":
     seeds = {}
     histories = {}
     results = {}
     for name in ["deterministic", "two_mutations", "two_outputs",  "three_outputs_03", "four_outputs_03", "no_threshold"]:
-        histories[name], seeds[name], results[name] = load_history(f"../experimenty/{name}/histories.txt")
-    
-    
+        histories[name], seeds[name], results[name] = load_history(
+            f"../experimenty/{name}/histories.txt")
 
     deter = histories["deterministic"]
     mins = np.min(deter, axis=0)
@@ -86,8 +89,7 @@ if __name__ == "__main__":
     plt.savefig("../convergent.pdf")
     plt.show()
     plt_boxplots(results)
-        
-    
+
     # print(dfh)
     # sns.lineplot(data=dfh, hue=None)
     # plt.show()
