@@ -69,7 +69,7 @@ def plt_boxplots(results):
 
     plt.xlabel("Zvolená strategie")
     plt.ylabel("Fitness")
-    plt.savefig("boxplots.pdf")
+    plt.savefig("../boxplots.pdf")
     plt.show()
 
 

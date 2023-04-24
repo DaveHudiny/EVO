@@ -264,7 +264,7 @@ def parser_init():
     Returns:
         argparse.ArgumentParser: New created parser.
     """
-    parser = argparse.ArgumentParser(description='Program for cgp algorithm')
+    parser = argparse.ArgumentParser(description="Script for cgp algorithm experiments.")
     parser.add_argument("--clean_path", type=str, help="Path to clear image (no noises).",
                         default="../data/tshushima_small_60.jpg")
     parser.add_argument("--noisy_path", type=str, help="Path to noisy image.",
