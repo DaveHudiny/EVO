@@ -8,6 +8,7 @@ import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import scipy.stats as st
 
 
 def load_history(path: str):
@@ -60,12 +61,27 @@ def plt_boxplots(results):
     Args:
         results (dict): Dictionary of keys by strategy with lists with resulting fitnesses of runs.
     """
+    MAX_FIT = 1
     dfr = pd.DataFrame.from_dict(results)
     dfr = dfr.rename(columns={"deterministic": "Deter", "two_outputs": "2 Outs H", "three_outputs_03": "3 Outs H",
                               "four_outputs_03": "4 Outs H", "no_threshold": "No Thresh", "two_mutations": "2 Outs L"})
     ax = sns.boxplot(data=dfr)
+
+    plt.xlabel("Zvolená strategie")
+    plt.ylabel("Fitness")
     plt.savefig("boxplots.pdf")
     plt.show()
+
+
+def statistic_compare_results(results1, results2):
+    """Pair t-test for two result array.
+
+    Args:
+        results1 (np.ndarray): First results.
+        results2 (np.ndarray): Second results.
+    """
+    t, p = st.ttest_ind(results1, results2)
+    print(f"P-hodnota pro dva zvolené výběry = {p}")
 
 
 if __name__ == "__main__":
@@ -90,6 +106,5 @@ if __name__ == "__main__":
     plt.show()
     plt_boxplots(results)
 
-    # print(dfh)
-    # sns.lineplot(data=dfh, hue=None)
-    # plt.show()
+    statistic_compare_results(
+        results1=results["two_mutations"], results2=results["two_outputs"])

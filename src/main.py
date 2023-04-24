@@ -266,13 +266,13 @@ def parser_init():
     """
     parser = argparse.ArgumentParser(description='Program for cgp algorithm')
     parser.add_argument("--clean_path", type=str, help="Path to clear image (no noises).",
-                        default="./data/tshushima_small_60.jpg")
+                        default="../data/tshushima_small_60.jpg")
     parser.add_argument("--noisy_path", type=str, help="Path to noisy image.",
-                        default="./data/tshushima_small_15percent.jpg")
+                        default="../data/tshushima_small_15percent.jpg")
     parser.add_argument("--runs", type=int,
                         help="Number of program runs.", default=15)
     parser.add_argument("--result_path", type=str,
-                        help="Path to folder for results.", default="./experimenty")
+                        help="Path to folder for results.", default="../experimenty")
     parser.add_argument("--strategy", help="Strategy for two outputs.", choices=[
                         "experimental", "two_outputs", "deterministic", "no_threshold", "three_outputs", "four_outputs", "two_mutations"])
     parser.add_argument(
