@@ -16,6 +16,10 @@ from strategies import two_outputs, deterministic, no_threshold, three_outputs, 
 import argparse
 import inspect
 
+
+########################################
+# Definitions of multiple CGP blocks.
+
 class ConstantZero(cgp.ConstantFloat):
     _def_output = "0.0"
     _def_output_numpy = "0.0"
@@ -43,20 +47,35 @@ class AbsSub(cgp.OperatorNode):
 class Maxi(cgp.OperatorNode):
     _arity = 2
     _def_output = "np.maximum(x_0, x_1)"
-#     _def_output_numpy = "np.max((x_0, x_1), axis=0)"
 
 class Mini(cgp.OperatorNode):
     _arity = 2
     _def_output = "np.minimum(x_0, x_1)"
-#     _def_output_numpy = "np.min((x_0, x_1), axis=0)"
 
 class Avg(cgp.OperatorNode):
     _arity = 2
     _def_output = "(x_0 + x_1) / 2"
     _def_output_numpy = "(x_0 + x_1) / 2"
 
+############################################
+# CGP interface class.
+
+
 class CGP_interface():
-    def __init__(self, correct, noisy, error_function, seed : int, strategy, iterations):
+    """Class for definition of objective functions, genome parameters etc.
+    """
+    def __init__(self, correct, noisy, error_function, seed : int, strategy, iterations, mutation_rate):
+        """CGP_interface init function.
+
+        Args:
+            correct (np.ndarray): Correct image.
+            noisy (np.ndarray): Noised image.
+            error_function (function): Error function (for example MSE)
+            seed (int): Seed for experiment
+            strategy (function): One of the functions from file strategies.py, which determines how the outputs are printed.
+            iterations (int): Number of generations of evolutionary algorithm. 
+            mutation_rate (float): Mutation rate of CGP algorithm.
+        """
         self._correct = (correct / 255.0) - 0.5
         self._noisy = (noisy / 255.0) - 0.5
         self._changes = (self._correct != self._noisy)
@@ -64,6 +83,7 @@ class CGP_interface():
         self.functor = Functor(None, strategy, 2)
         self.population_params = {"n_parents": 2, "seed": seed}
         self.height, self.width = self._correct.shape
+        self.mutation_rate = mutation_rate
 
         global size_prod 
         size_prod = self.height * self.width
@@ -84,39 +104,86 @@ class CGP_interface():
             "primitives": (cgp.Add, cgp.Sub, cgp.Mul, cgp.ConstantFloat, cgp.IfElse, DivProtected, 
                            ConstantOne, ConstantZero, Maxi, Mini, Identity, AbsSub, Avg),
             }
-        self.ea_params = {"n_offsprings": 5, "mutation_rate": 0.02, "n_processes": 4}
+        self.ea_params = {"n_offsprings": 5, "mutation_rate": mutation_rate, "n_processes": 4}
         self.evolve_params = {"max_generations": iterations}
     
     def objective_deterministic(self, individual : cgp.IndividualSingleGenome):
+        """Objective for deterministic filter. The incorrect filtering penalty is count after the function.
+
+        Args:
+            individual (cgp.IndividualSingleGenome): Single individual of CGP algorithm.
+
+        Returns:
+            cgp.IndividualSingleGenome: Returns individual with new fitness value.
+        """
         self.functor.set_function(individual.to_func())
         filtered_image = nd.generic_filter(self._noisy, self.functor.work, (5,5))
         individual.fitness = (self._error_function(self._correct, filtered_image))
         return individual
     
     def objective_two_outputs(self, individual : cgp.IndividualSingleGenome):
+        """Objective for multiple outputs filters. The incorrect filtering penalty is count inside the function.
+
+        Args:
+            individual (cgp.IndividualSingleGenome): Single individual of CGP algorithm.
+
+        Returns:
+            cgp.IndividualSingleGenome: Returns individual with new fitness value.
+        """
         global size_prod
         self.functor.set_function(individual.to_func())
         filtered_image = nd.generic_filter(self._noisy, self.functor.work, (5,5))
+        # Does filtering.
         filtered_pixels = (filtered_image == self._noisy)
         correct_changes = np.sum(filtered_pixels != self._changes)
         individual.fitness = (self._error_function(self._correct, filtered_image)
-                              - 0.1 * (correct_changes / (size_prod)))
+                              - 0.1 * (correct_changes / (size_prod))) # Penalty
         return individual
 
 class Functor():
-    def __init__(self, function = None, strategy = two_outputs, output_size = 2):
-        self._function = function
-        
+    """Auxilary class for handling functions for filters.
+    """
+    def __init__(self, func = None, strategy = two_outputs, output_size = 2):
+        """Init function for Functor class.
+
+        Args:
+            func (function, optional): Error function. Defaults to None.
+            strategy (function, optional): One of the functions from strategies.py. Defaults to two_outputs.
+            output_size (int, optional): Size of output of CGP algorithm. Unused. Defaults to 2.
+        """
+        self._func = func
         self._strategy = strategy
         self.output_size = output_size
     
-    def set_function(self, function):
-        self._function = function
+    def set_function(self, func):
+        """Changes function of Functor instance. Used in CGP algorithm for each individual.
+
+        Args:
+            func (function): New function (individual.to_func()).
+        """
+        self._func = func
         
     def work(self, inputor):
-        return self._strategy(self._function, inputor)
+        """Does work of Functor. Used in filter.
+
+        Args:
+            inputor (list): List of inputs (of len 25).
+
+        Returns:
+            float: New pixel value.
+        """
+        return self._strategy(self._func, inputor)
 
 def MSE(img1, img2):
+    """Mean square error function.
+
+    Args:
+        img1 (np.ndarray): Array of pixels of the first image.
+        img2 (np.ndarray): Array of pixels of the second image.
+
+    Returns:
+        float: Value of mean square error. Scaled to be inside (-inf, 1>. 
+    """
     global size_prod
     # diff = np.sum(cv2.subtract(img2, img1) ** 2)
     diff = np.sum((img1 - img2) ** 2)
@@ -160,6 +227,7 @@ def parser_init():
     parser.add_argument("--result_path", type=str, help="Path to folder for results.", default="./experimenty")
     parser.add_argument("--strategy", help="Strategy for two outputs.", choices=["experimental", "two_outputs", "deterministic", "no_threshold", "three_outputs", "four_outputs", "two_mutations"])
     parser.add_argument("--iterations", help="Iterations (generations) for each run.", default=400, type=int)
+    parser.add_argument("--mutation_rate", help="Mutation rate of CGP", default=0.2, type=float)
     return parser
 
 def select_strategy(args):
@@ -208,7 +276,7 @@ if __name__ == "__main__":
     global seed
     for i in range(args.runs):
         seed = int.from_bytes(os.urandom(4), 'big')
-        interface = CGP_interface(img1, img2, MSE, seed, strategy, args.iterations)
+        interface = CGP_interface(img1, img2, MSE, seed, strategy, args.iterations, args.mutation_rate)
         iteration = 0
         history["champion_fitness"] = []
         # print(interface.objective(np.array([[0.01,0.024,0.01],[0.024,0.9,0.024],[0.01,0.024,0.01]])))
