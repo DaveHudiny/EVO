@@ -1,6 +1,0 @@
-hal-cgp
-matplotlib
-opencv-python
-scipy
-pandas
-seaborn
