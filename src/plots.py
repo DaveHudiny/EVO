@@ -46,13 +46,16 @@ def plt_convergent(mins, meds, maxs, color: str = "red"):
     mins[mins < 0.96] = 0.96
     x = np.arange(1, EVALS+1)
     # plt.xscale('log')
-    plt.plot(x, meds, color=color)
+    if color == "red":
+        plt.plot(x, meds, color=color, label="Deterministická")
+    else:
+        plt.plot(x, meds, color=color, label="Evoluční")
     plt.fill_between(x, mins, maxs, alpha=0.3, color=color)
     plt.axhline(MAX_FIT, color="black",
                 linestyle="dashed")
     plt.xlabel("Pocet evaluací")
     plt.ylabel("Fitness")
-    plt.title("Konvergenční křivka")
+    plt.title("Porovnání evoluční a deterministické detekce")
 
 
 def plt_boxplots(results):
@@ -64,7 +67,7 @@ def plt_boxplots(results):
     MAX_FIT = 1
     dfr = pd.DataFrame.from_dict(results)
     dfr = dfr.rename(columns={"deterministic": "Deter", "two_outputs": "2 Outs H", "three_outputs_03": "3 Outs H",
-                              "four_outputs_03": "4 Outs H", "no_threshold": "No Thresh", "two_mutations": "2 Outs L"})
+                              "four_outputs_03": "4 Outs H", "no_threshold": "Bez Prahu", "two_mutations": "2 Outs L"})
     ax = sns.boxplot(data=dfr)
 
     plt.xlabel("Zvolená strategie")
@@ -102,8 +105,10 @@ if __name__ == "__main__":
     meds = np.median(deter, axis=0)
     maxs = np.max(deter, axis=0)
     plt_convergent(mins, meds, maxs, color="blue")
+    plt.legend()
     plt.savefig("../convergent.pdf")
     plt.show()
+    plt.figure()
     plt_boxplots(results)
 
     statistic_compare_results(
